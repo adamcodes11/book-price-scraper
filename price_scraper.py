@@ -1,7 +1,10 @@
 import requests
 from bs4 import BeautifulSoup
 import openpyxl
+from openpyxl.styles import Font
 from datetime import datetime
+import os
+
 
 def scrape_books(url):
     response = requests.get(url)
@@ -23,7 +26,13 @@ def scrape_books(url):
         })
     return books
 
-def save_to_excel(books, filename="books.xlsx"):
+
+def save_to_excel(books, filename=None):
+    os.makedirs("books", exist_ok=True)
+    if filename is None:
+        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+        filename = f"books/books_{timestamp}.xlsx"
+
     wb = openpyxl.Workbook()
     ws = wb.active
     ws.title = "Books"
@@ -32,7 +41,7 @@ def save_to_excel(books, filename="books.xlsx"):
     ws.append(headers)
 
     for col in range(1, len(headers) + 1):
-        ws.cell(1, col).font = openpyxl.styles.Font(bold=True)
+        ws.cell(1, col).font = Font(bold=True)
 
     now = datetime.now().strftime("%Y-%m-%d %H:%M")
     for book in books:
@@ -44,6 +53,7 @@ def save_to_excel(books, filename="books.xlsx"):
 
     wb.save(filename)
     print(f"Saved {len(books)} books to {filename}")
+
 
 def main():
     base_url = "https://books.toscrape.com/catalogue/page-{}.html"
@@ -57,5 +67,6 @@ def main():
 
     save_to_excel(all_books)
     print(f"\nDone! Total books scraped: {len(all_books)}")
+
 
 main()
