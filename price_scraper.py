@@ -5,6 +5,7 @@ from datetime import datetime
 
 def scrape_books(url):
     response = requests.get(url)
+    response.encoding = 'utf-8'
     soup = BeautifulSoup(response.text, "html.parser")
     books = []
     for article in soup.select("article.product_pod"):
